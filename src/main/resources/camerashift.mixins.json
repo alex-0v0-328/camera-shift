@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "net.alex.camerashift.mixin",
+  "plugin": "net.alex.camerashift.mixin.CompatMixinPlugin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "LockOnControlMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

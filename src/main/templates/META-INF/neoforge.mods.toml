@@ -1,0 +1,51 @@
+
+modLoader="javafml" #mandatory
+
+loaderVersion="${loader_version_range}" #mandatory
+
+license="${mod_license}"
+
+[[mods]] #mandatory
+
+modId="${mod_id}" #mandatory
+
+version="${mod_version}" #mandatory
+
+displayName="${mod_name}" #mandatory
+
+authors="alex"
+
+description='''
+Glides the camera between first person in Epic Fight's mining mode and third person in its battle mode.
+'''
+
+# Client-only: servers never need it, so it must not mark either side as incompatible
+displayTest="IGNORE_ALL_VERSION"
+
+# Optional compat only (Better Lock On); applies nothing when that mod is absent
+[[mixins]]
+config="${mod_id}.mixins.json"
+
+#[[accessTransformers]]
+#file="META-INF/accesstransformer.cfg"
+
+[[dependencies.${mod_id}]] #optional
+    modId="neoforge" #mandatory
+    type="required" #mandatory
+    versionRange="[${neo_version},)" #mandatory
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="minecraft"
+    type="required"
+    versionRange="${minecraft_version_range}"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.${mod_id}]]
+    modId="epicfight"
+    type="required"
+    versionRange="${epicfight_version_range}"
+    ordering="AFTER"
+    side="CLIENT"
