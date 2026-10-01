@@ -8,15 +8,15 @@ This is a translation of [README.md](README.md); where the two differ, the Chine
 
 ## Requirements
 
-|                    |                                        |
-|--------------------|----------------------------------------|
-| Minecraft          | `1.21.1`                               |
-| NeoForge           | `21.1.252` or newer                    |
-| Java               | `21`                                   |
-| mod id / package   | `camerashift` · `net.alex.camerashift` |
-| Required           | Epic Fight `21.17.3.1` or newer        |
-| Optional compat    | Better Lock On                         |
-| Side               | Client only; servers don't need it     |
+|                  |                                         |
+|------------------|-----------------------------------------|
+| Minecraft        | `1.21.1`                                |
+| NeoForge         | `21.1.252` or newer                     |
+| Java             | `21`                                    |
+| mod id / package | `camera_shift` · `net.alex.camerashift` |
+| Required         | Epic Fight `21.17.3.1` or newer         |
+| Optional compat  | Better Lock On                          |
+| Side             | Client only; servers don't need it      |
 
 Exact versions live in `gradle.properties`.
 
@@ -30,7 +30,7 @@ Exact versions live in `gradle.properties`.
 
 ## Configuration
 
-`config/camerashift-client.toml`:
+`config/camera_shift-client.toml`:
 
 | Key                 | Default | Meaning                                                    |
 |---------------------|---------|------------------------------------------------------------|
@@ -45,12 +45,16 @@ Exact versions live in `gradle.properties`.
 ## Build and run
 
 ```text
-gradlew.bat build      # compile, package, run the unit tests
+gradlew.bat build      # compile, package
 gradlew.bat runClient  # development client
 ```
 
 Use `./gradlew` on other systems. Epic Fight comes from the Modrinth Maven, so no jar needs to be placed by hand; output lands in `build/libs/`.
 
+## Tests
+
+The automated tests stay on the developer's machine and are not published with the repository; CI compiles and packages.
+
 ## License
 
-The mod itself is copyrighted, all rights reserved. `TEMPLATE_LICENSE.txt` is the MIT license inherited from the NeoForge MDK template and **does not cover the mod's code**.
+The mod itself is copyrighted, all rights reserved. `LICENSE.txt` is the MIT license inherited from the NeoForge MDK template and **does not cover the mod's code**.

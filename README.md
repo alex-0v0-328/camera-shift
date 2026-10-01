@@ -6,15 +6,15 @@ Epic Fight 的客户端小补丁：挖掘模式使用第一人称，战斗模式
 
 ## 环境与依赖
 
-|               |                                        |
-|---------------|----------------------------------------|
-| Minecraft     | `1.21.1`                               |
-| NeoForge      | `21.1.252` 及以上                      |
-| Java          | `21`                                   |
-| mod id / 包名 | `camerashift` · `net.alex.camerashift` |
-| 必需依赖      | Epic Fight `21.17.3.1` 及以上          |
-| 可选兼容      | Better Lock On                         |
-| 运行端        | 仅客户端，服务器无需安装               |
+|               |                                         |
+|---------------|-----------------------------------------|
+| Minecraft     | `1.21.1`                                |
+| NeoForge      | `21.1.252` 及以上                       |
+| Java          | `21`                                    |
+| mod id / 包名 | `camera_shift` · `net.alex.camerashift` |
+| 必需依赖      | Epic Fight `21.17.3.1` 及以上           |
+| 可选兼容      | Better Lock On                          |
+| 运行端        | 仅客户端，服务器无需安装                |
 
 精确版本以 `gradle.properties` 为准。
 
@@ -28,7 +28,7 @@ Epic Fight 的客户端小补丁：挖掘模式使用第一人称，战斗模式
 
 ## 配置
 
-`config/camerashift-client.toml`：
+`config/camera_shift-client.toml`：
 
 | 键                  | 默认  | 说明                                         |
 |---------------------|-------|----------------------------------------------|
@@ -43,12 +43,16 @@ Epic Fight 的客户端小补丁：挖掘模式使用第一人称，战斗模式
 ## 构建与运行
 
 ```text
-gradlew.bat build      # 编译、打包、运行单元测试
+gradlew.bat build      # 编译、打包
 gradlew.bat runClient  # 开发客户端
 ```
 
 其他系统用 `./gradlew`。Epic Fight 从 Modrinth Maven 获取，无需手动放入 jar；产物位于 `build/libs/`。
 
+## 测试
+
+自动化测试只保留在开发者本地，不随仓库发布；CI 负责编译与打包。
+
 ## 许可
 
-模组本体版权所有，保留所有权利。`TEMPLATE_LICENSE.txt` 是继承自 NeoForge MDK 模板的 MIT 协议，**不覆盖模组代码**。
+模组本体版权所有，保留所有权利。`LICENSE.txt` 是继承自 NeoForge MDK 模板的 MIT 协议，**不覆盖模组代码**。
