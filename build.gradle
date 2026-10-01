@@ -68,6 +68,11 @@ neoForge {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
 
             logLevel = org.slf4j.event.Level.DEBUG
+
+            // The guzhenren IDEA window links this project too, and its runs use the plain names, so
+            // ours carry the mod name and a folder instead of overwriting Client, Data, Server.
+            ideName = "Camera Shift ${ideName.get()}"
+            ideFolderName = 'Camera Shift'
         }
     }
 
