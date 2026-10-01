@@ -32,8 +32,8 @@ Exact versions live in `gradle.properties`.
 
 `config/camerashift-client.toml`:
 
-| Key                 | Default | Meaning                                                  |
-|---------------------|---------|----------------------------------------------------------|
+| Key                 | Default | Meaning                                                    |
+|---------------------|---------|------------------------------------------------------------|
 | `transitionSeconds` | `0.4`   | Glide duration in seconds, `0`–`2`; `0` switches instantly |
 
 ## Compatibility
