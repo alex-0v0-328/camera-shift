@@ -11,7 +11,7 @@ This is a translation of [README.md](README.md); where the two differ, the Chine
 |                    |                                        |
 |--------------------|----------------------------------------|
 | Minecraft          | `1.21.1`                               |
-| NeoForge           | `21.1.238` or newer                    |
+| NeoForge           | `21.1.252` or newer                    |
 | Java               | `21`                                   |
 | mod id / package   | `camerashift` · `net.alex.camerashift` |
 | Required           | Epic Fight `21.17.3.1` or newer        |

@@ -9,7 +9,7 @@ Epic Fight 的客户端小补丁：挖掘模式使用第一人称，战斗模式
 |               |                                        |
 |---------------|----------------------------------------|
 | Minecraft     | `1.21.1`                               |
-| NeoForge      | `21.1.238` 及以上                      |
+| NeoForge      | `21.1.252` 及以上                      |
 | Java          | `21`                                   |
 | mod id / 包名 | `camerashift` · `net.alex.camerashift` |
 | 必需依赖      | Epic Fight `21.17.3.1` 及以上          |
