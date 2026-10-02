@@ -30,8 +30,8 @@ The rules for the Camera Shift repository. Local sessions usually open from `../
 - In the guzhenren IDEA window, which links this project, its run configurations are named `Camera Shift Client` and so on, in a `Camera Shift` folder (`ideName` in `build.gradle`), so they never overwrite GZR's plain `Client`.
 - The tests are local-only, as in GZR (Alex, 2026-10-01): `src/test/` is gitignored and holds plain JUnit over the glide math (`CameraGlideTest`) and nothing that boots Minecraft. They have no remote copy and no version history from that date on.
 - GitHub Actions (`.github/workflows/build.yml`) runs `./gradlew build` on every push and pull request, which compiles and packages.
-- Commits go through GZR's `ship.py` with `--project camerashift` (Alex, 2026-10-01): the plan at `C:\workspace\Dev\Projects\_Temp\camerashift\ship-plan.json`; its mirror runs `build` on the exact tree as CI does, then again with the local `src/test` copied in; then the contributor gate, push and the Actions wait. The flow, commit-message picking included, is GZR's `commit-push` skill.
-- A cloud session has neither GZR's tools nor the local tests: it runs `./gradlew build` and leaves shipping through `ship.py` to a local session.
+- Commits go through GZR's `commit_push.py` with `--project camerashift` (Alex, 2026-10-01): the plan at `C:\workspace\Dev\Projects\_Temp\camerashift\commit-push-plan.json`; its mirror runs `build` on the exact tree as CI does, then again with the local `src/test` copied in; then the contributor gate, push and the Actions wait. The flow, commit-message picking included, is GZR's `commit-push` skill.
+- A cloud session has neither GZR's tools nor the local tests: it runs `./gradlew build` and leaves shipping through `commit_push.py` to a local session.
 
 ## Map
 
