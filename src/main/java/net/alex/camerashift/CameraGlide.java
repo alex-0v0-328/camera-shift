@@ -5,7 +5,7 @@ package net.alex.camerashift;
  * (progress 1). Retargeting mid-glide starts from the current progress, so the camera never jumps
  * when Epic Fight flips modes faster than a glide finishes.
  *
- * <p>{@link #snapTo} holds the camera still at a progress. {@link #glideTo} shrinks the duration with the
+ * <p>{@link #snapTo} holds the camera still at a given progress. {@link #glideTo} shrinks the duration with the
  * remaining span, so reversing halfway through takes half of the full duration. {@link #easedProgress} is
  * smoothstep over the linear progress, so a full glide eases in and out at both ends.
  *
