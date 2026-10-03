@@ -13,9 +13,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.CalculateDetachedCameraDistanceEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import org.jetbrains.annotations.Nullable;
-import yesman.epicfight.client.world.capabilites.entitypatch.player.LocalPlayerPatch;
-import yesman.epicfight.config.ClientConfig;
-import yesman.epicfight.world.capabilities.EpicFightCapabilities;
 import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.PlayerMode;
 
 /**
@@ -31,19 +28,20 @@ import yesman.epicfight.world.capabilities.entitypatch.player.PlayerPatch.Player
  * distance.
  *
  * <p>A glide toward the eye stays in third person until it arrives; {@link #advanceGlide} then drops into first
- * person. Pressing F5 mid-glide ends the glide, since the player's choice wins. With Epic Fight's TPS camera set to
- * always on, every switch snaps: that camera replaces the vanilla third-person setup, so a glide would never show.
- * Epic Fight's own Auto Perspective Switching snaps instantly and would cut every glide short, so
- * {@link #disableEpicFightAutoSwitch} turns it off in Epic Fight's config whenever it finds it on.
+ * person ({@link #landInFirstPerson}). Pressing F5 mid-glide ends the glide, since the player's choice wins. With Epic
+ * Fight's TPS camera set to always on, every switch snaps: that camera replaces the vanilla third-person setup, so a
+ * glide would never show. Epic Fight's own Auto Perspective Switching snaps instantly and would cut every glide short,
+ * so {@link EpicFightBridge#disableAutoPerspectiveSwitching} turns it off whenever it finds it on.
  *
  * <p>For other camera mods: {@link #isGliding} is true while a glide runs, and a mod that reacts to a close
  * third-person camera must hold off meanwhile. {@link #consumeSettledInFirstPerson} tells, once per landing,
  * whether mining mode landed in first person since the last call ({@link #settledInFirstPerson}), so a mod can
  * drop a third-person view it was waiting to restore.
  *
- * <p>⚠ The Epic Fight members used are internals, not API. A {@link LinkageError} means a newer Epic Fight renamed
- * something this build links against: {@link #disabled} then keeps the controller off with one logged error,
- * instead of crashing every frame, until the mod is rebuilt against that version.
+ * <p>⚠ The Epic Fight members used are internals, not API, and all of them sit in {@link EpicFightBridge}. A
+ * {@link LinkageError} means a newer Epic Fight renamed something this build links against: {@link #disabled} then
+ * keeps the controller off with one logged error, instead of crashing every frame, until the mod is rebuilt against
+ * that version.
  *
  * @author Alex
  * @version 1.0.0
@@ -80,11 +78,12 @@ public final class PerspectiveController {
         }
         try {
             followMode();
-        } catch (LinkageError e) {
+        } catch (LinkageError error) {
             disabled = true;
             gliding = false;
             CameraShift.LOGGER.error(
-                    "Epic Fight's internals changed; Camera Shift stays off until rebuilt against this version", e);
+                    "Epic Fight's internals changed; Camera Shift stays off until rebuilt against this version",
+                    error);
         }
     }
 
@@ -96,20 +95,19 @@ public final class PerspectiveController {
             gliding = false;
             return;
         }
-        disableEpicFightAutoSwitch();
-        LocalPlayerPatch patch = EpicFightCapabilities.getLocalPlayerPatch(player);
-        if (patch == null) {
+        EpicFightBridge.disableAutoPerspectiveSwitching();
+        PlayerMode mode = EpicFightBridge.getPlayerMode(player);
+        if (mode == null) {
             return;
         }
-        long now = Util.getMillis();
-        PlayerMode mode = patch.getPlayerMode();
+        long nowMillis = Util.getMillis();
         if (mode != lastMode) {
             boolean animate = lastMode != null;
             lastMode = mode;
-            applyMode(minecraft.options, mode == PlayerMode.EPICFIGHT, animate, now);
+            applyMode(minecraft.options, mode == PlayerMode.EPICFIGHT, animate, nowMillis);
         }
         if (gliding) {
-            advanceGlide(minecraft.options, now);
+            advanceGlide(minecraft.options, nowMillis);
         }
     }
 
@@ -120,61 +118,52 @@ public final class PerspectiveController {
         }
         float full = event.getDistance();
         float near = Math.min(NEAR_DISTANCE, full);
-        event.setDistance(Mth.lerp((float) GLIDE.easedProgress(Util.getMillis()), near, full));
+        event.setDistance(Mth.lerp((float) GLIDE.getEasedProgress(Util.getMillis()), near, full));
     }
 
-    private static void applyMode(Options options, boolean battle, boolean animate, long now) {
-        CameraType current = options.getCameraType();
-        long duration = Math.round(CameraShiftConfig.TRANSITION_SECONDS.get() * 1000.0);
-        boolean glide = animate && duration > 0
-                && ClientConfig.getTpsActivationType() != ClientConfig.TPSActivationType.ALWAYS;
+    private static void applyMode(Options options, boolean battle, boolean animate, long nowMillis) {
+        CameraType cameraType = options.getCameraType();
+        long durationMillis = Math.round(ClientConfig.TRANSITION_SECONDS.get() * 1000.0);
+        boolean glide = animate && durationMillis > 0 && !EpicFightBridge.isTpsCameraAlways();
         if (!gliding) {
-            GLIDE.snapTo(current.isFirstPerson() ? 0.0 : 1.0);
+            GLIDE.snapTo(cameraType.isFirstPerson() ? 0.0 : 1.0);
         }
         if (battle) {
             options.setCameraType(CameraType.THIRD_PERSON_BACK);
-            if (glide && (current.isFirstPerson() || gliding)) {
-                GLIDE.glideTo(1.0, now, duration);
+            if (glide && (cameraType.isFirstPerson() || gliding)) {
+                GLIDE.glideTo(1.0, nowMillis, durationMillis);
                 gliding = true;
             } else {
                 GLIDE.snapTo(1.0);
                 gliding = false;
             }
-        } else if (current.isFirstPerson()) {
+        } else if (cameraType.isFirstPerson()) {
             gliding = false;
             settledInFirstPerson = true;
-        } else if (glide && current == CameraType.THIRD_PERSON_BACK) {
-            GLIDE.glideTo(0.0, now, duration);
+        } else if (glide && cameraType == CameraType.THIRD_PERSON_BACK) {
+            GLIDE.glideTo(0.0, nowMillis, durationMillis);
             gliding = true;
         } else {
-            options.setCameraType(CameraType.FIRST_PERSON);
+            landInFirstPerson(options);
             gliding = false;
-            settledInFirstPerson = true;
         }
     }
 
-    private static void advanceGlide(Options options, long now) {
+    private static void advanceGlide(Options options, long nowMillis) {
         if (options.getCameraType() != CameraType.THIRD_PERSON_BACK) {
             gliding = false;
             return;
         }
-        if (GLIDE.isFinished(now)) {
+        if (GLIDE.isFinished(nowMillis)) {
             gliding = false;
-            if (GLIDE.target() == 0.0) {
-                options.setCameraType(CameraType.FIRST_PERSON);
-                settledInFirstPerson = true;
+            if (GLIDE.getTarget() == 0.0) {
+                landInFirstPerson(options);
             }
         }
     }
 
-    private static void disableEpicFightAutoSwitch() {
-        if (!ClientConfig.autoPerspectiveSwithing) {
-            return;
-        }
-        ClientConfig.autoPerspectiveSwithing = false;
-        ClientConfig.AUTO_PERSPECTIVE_SWITCHING.set(false);
-        ClientConfig.AUTO_PERSPECTIVE_SWITCHING.save();
-        CameraShift.LOGGER.info(
-                "Turned off Epic Fight's Auto Perspective Switching; Camera Shift drives the perspective now");
+    private static void landInFirstPerson(Options options) {
+        options.setCameraType(CameraType.FIRST_PERSON);
+        settledInFirstPerson = true;
     }
 }

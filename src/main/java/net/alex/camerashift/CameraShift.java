@@ -12,7 +12,7 @@ import org.slf4j.Logger;
  * in the third-person back view, and the camera glides between them ({@link PerspectiveController}).
  *
  * <p>Annotated {@code @Mod(dist = Dist.CLIENT)}, so nothing loads on a dedicated server. Holds the {@code MOD_ID}
- * constant and the shared {@code LOGGER}, and registers the client config {@link CameraShiftConfig}.
+ * constant and the shared {@code LOGGER}, and registers the client config {@link ClientConfig}.
  *
  * @author Alex
  * @version 1.0.0
@@ -26,6 +26,6 @@ public class CameraShift {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     public CameraShift(ModContainer modContainer) {
-        modContainer.registerConfig(ModConfig.Type.CLIENT, CameraShiftConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, ClientConfig.SPEC);
     }
 }

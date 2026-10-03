@@ -12,7 +12,7 @@ The rules for the Camera Shift repository. Local sessions usually open from `../
 - Camera Shift, mod id `camera_shift` (`camerashift` until 2026-10-01, Alex), package `net.alex.camerashift`: a client-only add-on for Epic Fight. Mining mode ends in first person, battle mode in the third-person back view, and the camera glides between them. `README.md` is Alex's short player-facing introduction, written by him (2026-10-02), and `README.zh-TW.md` (Traditional Chinese) and `README.en.md` are its translations: change them to follow the Simplified Chinese, never the reverse. Behavior and config details live in the code and this file's Map.
 - Minecraft 1.21.1 on NeoForge through ModDevGradle, Java 21. Versions live in `gradle.properties` only.
 - `neo_version` is pinned to the oldest NeoForge in use, the GZR dev client (`../guzhenren/gradle.properties`), so the compiler proves no newer API is used; the `neoforge.mods.toml` range stays open-ended. Both moved from `21.1.238` to `21.1.252` on 2026-10-01 at Alex's call, together with Gu World. When the GZR pin moves, ask Alex before moving this one.
-- Epic Fight is the one required dependency, pulled from the Modrinth maven (`compileOnly` plus `localRuntime`; nothing goes into `run/mods`). The members used (`LocalPlayerPatch`, `ClientConfig`, `PlayerMode`) are internals, not API: a `LinkageError` switches the controller off with one logged error while the game keeps running. Keep that fail-soft path.
+- Epic Fight is the one required dependency, pulled from the Modrinth maven (`compileOnly` plus `localRuntime`; nothing goes into `run/mods`). The members used (`LocalPlayerPatch`, Epic Fight's `ClientConfig`, `PlayerMode`) are internals, not API, and all sit in `EpicFightBridge`: a `LinkageError` switches the controller off with one logged error while the game keeps running. Keep that fail-soft path.
 - Better Lock On is optional compat only: `LockOnControlMixin` is `@Pseudo` with `require = 0`, the mixin config is not required, and `CompatMixinPlugin` skips the mixin unless `betterlockon` is loaded. It never becomes a compile or runtime dependency.
 - Client-only: `@Mod(dist = Dist.CLIENT)` and `displayTest="IGNORE_ALL_VERSION"`. Nothing may load on a dedicated server or require a server install.
 
@@ -35,20 +35,21 @@ The rules for the Camera Shift repository. Local sessions usually open from `../
 
 ## Map
 
-| Path                                                  | What it is                                                                                                                                          |
-|-------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------|
-| `src/main/java/net/alex/camerashift/CameraShift.java` | Client-only mod entry (`MOD_ID`, `LOGGER`); registers the client config                                                                             |
-| `…/CameraShiftConfig.java`                            | `config/camera_shift-client.toml`: `transitionSeconds`, default 0.4 s, range 0–2, 0 switches instantly                                              |
-| `…/PerspectiveController.java`                        | Per-frame driver: follows Epic Fight's player mode, runs the glide, turns off Epic Fight's own perspective auto-switch, fail-soft on `LinkageError` |
-| `…/CameraGlide.java`                                  | Pure glide math: smoothstep easing, mid-glide reversal from the current position                                                                    |
-| `…/mixin/`                                            | `CompatMixinPlugin` and `LockOnControlMixin`, the optional Better Lock On compat                                                                    |
-| `src/main/resources/camera_shift.mixins.json`         | Mixin config, named after the mod id (`neoforge.mods.toml` derives it)                                                                              |
-| `src/main/templates/META-INF/neoforge.mods.toml`      | Mod metadata, expanded from `gradle.properties` by `generateModMetadata`                                                                            |
-| `src/test/`                                           | JUnit tests; local-only, gitignored                                                                                                                 |
-| `run/`                                                | Dev game folder: options, configs, the test world `新的世界`; gitignored                                                                            |
-| `.idea/`                                              | IDEA project settings; gitignored                                                                                                                   |
-| `.claude/`                                            | Cloud-session hook and the always-on skills, copies synced from GZR; `settings.local.json` stays local                                              |
-| `CLAUDE.md`                                           | This rules file; tracked, so cloud sessions load it (Alex, 2026-10-01)                                                                              |
+| Path                                                  | What it is                                                                                                                                         |
+|-------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------|
+| `src/main/java/net/alex/camerashift/CameraShift.java` | Client-only mod entry (`MOD_ID`, `LOGGER`); registers the client config                                                                            |
+| `…/ClientConfig.java`                                 | `config/camera_shift-client.toml`: `transitionSeconds`, default 0.4 s, range 0–2, 0 switches instantly                                             |
+| `…/PerspectiveController.java`                        | Per-frame driver: follows Epic Fight's player mode, runs the glide, fail-soft on `LinkageError`                                                    |
+| `…/EpicFightBridge.java`                              | Every Epic Fight internal in one class: the player mode, whether the TPS camera is always on, turning off Epic Fight's own perspective auto-switch |
+| `…/CameraGlide.java`                                  | Pure glide math: smoothstep easing, mid-glide reversal from the current position                                                                   |
+| `…/mixin/`                                            | `CompatMixinPlugin` and `LockOnControlMixin`, the optional Better Lock On compat                                                                   |
+| `src/main/resources/camera_shift.mixins.json`         | Mixin config, named after the mod id (`neoforge.mods.toml` derives it)                                                                             |
+| `src/main/templates/META-INF/neoforge.mods.toml`      | Mod metadata, expanded from `gradle.properties` by `generateModMetadata`                                                                           |
+| `src/test/`                                           | JUnit tests; local-only, gitignored                                                                                                                |
+| `run/`                                                | Dev game folder: options, configs, the test world `新的世界`; gitignored                                                                           |
+| `.idea/`                                              | IDEA project settings; gitignored                                                                                                                  |
+| `.claude/`                                            | Cloud-session hook and the always-on skills, copies synced from GZR; `settings.local.json` stays local                                             |
+| `CLAUDE.md`                                           | This rules file; tracked, so cloud sessions load it (Alex, 2026-10-01)                                                                             |
 
 ## Language and style
 
@@ -58,4 +59,10 @@ The rules for the Camera Shift repository. Local sessions usually open from `../
   - Blank lines: one after a type's opening brace, none before its closing brace, none at the top of a method or block body; exactly one between members, placed above Javadoc and annotations; consecutive fields form one block with no blank lines; one between the top-level class Javadoc and the declaration; one before `//region` and after `//endregion`, none inside them; at most one between logical steps inside a method.
   - Braces: an empty body is `{}` on one line (`private X() {}`); a one-line brace pair with content keeps a space inside (`{ return x; }`, `new int[] { 1, 2 }`).
   - Imports form one block in plain ASCII order (`ModContainer` before `common.Mod`), static imports in their own block first, no wildcards. Constants are `UPPER_SNAKE` (`MOD_ID`). No hand-aligned argument columns; lines stay within 120 characters.
+- Naming, shared by the three mods (Alex, 2026-10-03):
+  1. Parameters and locals are whole words: `player` (a `ServerPlayer` too), `stack`, `level`, `entity`, `event`, `value`, `delta`, `amount`, `index`, `ticks`. `x`, `y`, `z` and `id` count as whole words, and idiomatic factory short names (`id`, `instance`, `source`, `key`) stay. Only loop indices take `i`, `j`.
+  2. One concept, one name across the repository; two concepts never share one.
+  3. Methods start with a verb: `get`/`is`/`has` read, `set`/`add`/`shift` write, `tick` advances one tick, `refresh` recomputes derived state, `on` handles an event.
+  4. A class name does not repeat what its package already says; only entry classes other mods or the loader see carry the mod prefix.
+  5. One class, one job: a class over 300 lines or a method over 40 is split or states why; package dependencies point one way, with no cycles.
 - New code matches its neighbors' comment density, naming and idiom. Markdown tables stay aligned: after touching one, `python ../guzhenren/tools/md_tables.py <file>` must report nothing.

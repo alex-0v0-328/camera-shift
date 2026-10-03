@@ -35,9 +35,9 @@ public abstract class LockOnControlMixin {
     private static CameraType lastCameraType;
 
     @Inject(method = "handleCamera", at = @At("HEAD"), cancellable = true, require = 0)
-    private static void camera_shift$yieldToGlide(CallbackInfo ci) {
+    private static void camera_shift$yieldToGlide(CallbackInfo callback) {
         if (PerspectiveController.isGliding()) {
-            ci.cancel();
+            callback.cancel();
             return;
         }
         if (PerspectiveController.consumeSettledInFirstPerson()) {

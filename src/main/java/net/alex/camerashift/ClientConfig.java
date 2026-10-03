@@ -13,7 +13,7 @@ import net.neoforged.neoforge.common.ModConfigSpec;
  * @since 1.0.0
  */
 
-public final class CameraShiftConfig {
+public final class ClientConfig {
 
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
     public static final ModConfigSpec.DoubleValue TRANSITION_SECONDS = BUILDER
@@ -22,5 +22,5 @@ public final class CameraShiftConfig {
             .defineInRange("transitionSeconds", 0.4, 0.0, 2.0);
     public static final ModConfigSpec SPEC = BUILDER.build();
 
-    private CameraShiftConfig() {}
+    private ClientConfig() {}
 }

@@ -6,7 +6,7 @@ package net.alex.camerashift;
  * when Epic Fight flips modes faster than a glide finishes.
  *
  * <p>{@link #snapTo} holds the camera still at a given progress. {@link #glideTo} shrinks the duration with the
- * remaining span, so reversing halfway through takes half of the full duration. {@link #easedProgress} is
+ * remaining span, so reversing halfway through takes half of the full duration. {@link #getEasedProgress} is
  * smoothstep over the linear progress, so a full glide eases in and out at both ends.
  *
  * @author Alex
@@ -16,42 +16,42 @@ package net.alex.camerashift;
 
 public final class CameraGlide {
 
-    private double from = 1.0;
-    private double to = 1.0;
+    private double origin = 1.0;
+    private double target = 1.0;
     private long startMillis;
     private long durationMillis;
 
     public void snapTo(double progress) {
-        from = progress;
-        to = progress;
+        origin = progress;
+        target = progress;
         durationMillis = 0;
     }
 
     public void glideTo(double target, long nowMillis, long fullDurationMillis) {
-        from = linearProgress(nowMillis);
-        to = target;
+        origin = getLinearProgress(nowMillis);
+        this.target = target;
         startMillis = nowMillis;
-        durationMillis = Math.round(Math.abs(target - from) * fullDurationMillis);
+        durationMillis = Math.round(Math.abs(target - origin) * fullDurationMillis);
     }
 
-    public double target() {
-        return to;
+    public double getTarget() {
+        return target;
     }
 
     public boolean isFinished(long nowMillis) {
         return nowMillis - startMillis >= durationMillis;
     }
 
-    public double easedProgress(long nowMillis) {
-        double p = linearProgress(nowMillis);
-        return p * p * (3.0 - 2.0 * p);
+    public double getEasedProgress(long nowMillis) {
+        double progress = getLinearProgress(nowMillis);
+        return progress * progress * (3.0 - 2.0 * progress);
     }
 
-    double linearProgress(long nowMillis) {
+    double getLinearProgress(long nowMillis) {
         if (durationMillis <= 0) {
-            return to;
+            return target;
         }
-        double t = Math.clamp((nowMillis - startMillis) / (double) durationMillis, 0.0, 1.0);
-        return from + (to - from) * t;
+        double fraction = Math.clamp((nowMillis - startMillis) / (double) durationMillis, 0.0, 1.0);
+        return origin + (target - origin) * fraction;
     }
 }
